@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	//"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Username string `json:"username" form:"username" binding:"required"`
+	Username string `gorm:"primarykey" json:"username" form:"username" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
 
@@ -19,12 +18,12 @@ func (user *User) Save() error {
 	return err
 }
 
-func Getpassword(user string, c *gin.Context) (User, error) {
+func Getpassword(user string, c *gin.Context) (string, error) {
 	var input User
-	err := Database.Where("id = ?", user).First(&input).Error
+	err := Database.Where("username = ?", user).First(&input).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid useranme"})
 		c.Abort()
 	}
-	return input, nil
+	return input.Password, nil
 }
